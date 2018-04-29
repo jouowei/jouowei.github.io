@@ -276,8 +276,8 @@ myApp.controller('formCtrl', function($scope,$http) {
             catch(err){
                 return alert('系統出現問題，請重新整理網頁後再試一次 \n'+err);
             }
-        });
-    }
+    
+    });
     alert('新增成功');
 
         //window.location.reload();
