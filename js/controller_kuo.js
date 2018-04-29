@@ -15,6 +15,35 @@ myApp.filter('unique', function() {
 });
 
 myApp.controller('formCtrl', function($scope,$http) {
+    //出貨單schema
+    $scope.order = [
+        {
+            business_type:'',       //出貨單類型
+            delivery_date:'',       //出貨日期
+            client_name:'',         //客戶名稱
+            order_ID:'',            //出貨單號
+            ships:'',               //送貨單 (見下方ships)
+            delivery_fee:'',        //運費
+            comment:''              //出貨單備註
+        }
+    ];
+    //送貨單schema
+    $scope.order.ships = [{
+        order_ID:'',
+        ship_ID:'',         //送貨單號
+        ship_deleted:'',    //此單狀態 (''=正常,'1'=刪除)
+        ship_datetime:'',   //送達時間
+        contact_info:'',    //客戶連絡電話 or 地址
+        ship_area:'',       //縣市
+        ship_district:'',   //區域
+        driver:'',          //駕駛
+        car_type:'',        //車型
+        car_ID:'',          //車號
+        is_elevator:'',     //是否有搭電梯 (+100)
+        floors_byhand:'',   //手搬樓層數 (1樓+100)
+        amount_collect:'',  //代收貨款 (現金0.2%手續費，支票無)
+        comment:''          //備註
+    }];
     //運費lookup table
     $scope.rawdata = [
         {id: 1, city: '高雄市', district: '前金區', car_type: '3.5t', fare: '480'},
@@ -148,35 +177,6 @@ myApp.controller('formCtrl', function($scope,$http) {
         {id: 131, city: '屏東縣市', district: '佳冬鄉', car_type: '3.5t', fare: '1900'},
         {id: 132, city: '屏東縣市', district: '佳冬鄉', car_type: '6.8t', fare: '2650'}
     ];
-    //出貨單schema
-    $scope.order = [
-        {
-            business_type:'',       //出貨單類型
-            delivery_date:'',       //出貨日期
-            client_name:'',         //客戶名稱
-            order_ID:'',            //出貨單號
-            ships:'',               //送貨單 (見下方ships)
-            delivery_fee:'',        //運費
-            comment:''              //出貨單備註
-        }
-    ];
-    //送貨單schema
-    $scope.order.ships = [{
-        order_ID:'',
-        ship_ID:'',         //送貨單號
-        ship_deleted:'',    //此單狀態 (''=正常,'1'=刪除)
-        ship_datetime:'',   //送達時間
-        contact_info:'',    //客戶連絡電話 or 地址
-        ship_area:'',       //縣市
-        ship_district:'',   //區域
-        driver:'',          //駕駛
-        car_type:'',        //車型
-        car_ID:'',          //車號
-        is_elevator:'',     //是否有搭電梯 (+100)
-        floors_byhand:'',   //手搬樓層數 (1樓+100)
-        amount_collect:'',  //代收貨款 (現金0.2%手續費，支票無)
-        comment:''          //備註
-    }];
     //送達時間
     $scope.arrive_time = ['不指定時間','早上6點','早上7點','早上8點','早上9點','早上10點','早上11點','中午12點','下午1點','下午2點','下午3點','下午4點','下午5點','晚上6點','晚上7點','晚上8點','晚上9點','晚上10點'];
     //根據縣市拉出對應的鄉鎮區域
@@ -229,57 +229,55 @@ myApp.controller('formCtrl', function($scope,$http) {
         var order_ID = $scope.order.order_ID;
         var delivery_fee = $scope.order.delivery_fee;
         var comment = $('#commentText').val();
-        if(this.validateNcal($scope.order)){
-            $scope.order.ships.forEach(function(x){
-                if(x.ship_deleted == "1" ){
-                    return;
-                }
-                var shipdata = {
-                    business_type: business_type,
-                    delivery_date: delivery_date,
-                    client_name: client_name,
-                    order_ID: order_ID,
-                    delivery_fee: delivery_fee,
-                    comment: comment,
-                    ship_ID: x.ship_ID,
-                    ship_area: x.ship_area,
-                    ship_district: x.ship_district,
-                    car_type: x.car_type,
-                    ship_datetime: x.ship_datetime,
-                    contact_info: x.contact_info,
-                    is_elevator: x.is_elevator,
-                    floors_byhand: x.floors_byhand,
-                    amount_collect: x.amount_collect
-                }
+        $scope.order.ships.forEach(function(x){
+            if(x.ship_deleted == "1" ){
+                return;
+            }
+            var shipdata = {
+                business_type: business_type,
+                delivery_date: delivery_date,
+                client_name: client_name,
+                order_ID: order_ID,
+                delivery_fee: delivery_fee,                    
+                comment: comment,
+                ship_ID: x.ship_ID,
+                ship_area: x.ship_area,
+                ship_district: x.ship_district,
+                car_type: x.car_type,
+                ship_datetime: x.ship_datetime,                    
+                contact_info: x.contact_info,
+                is_elevator: x.is_elevator,
+                floors_byhand: x.floors_byhand,
+                amount_collect: x.amount_collect
+            }
                 
-                try{
-                    var TYPE1_SUBMIT_FORM_API = "https://script.google.com/macros/s/AKfycbzomZj2EcfrQPU1bZsGLjlwINtcPSJ9fxk4ZA2NYy8mb1rH3iw/exec";
-                    $http({
-                        url:TYPE1_SUBMIT_FORM_API, 
-                        method: 'POST',
-                        transformRequest: function(obj) {
-                            var str = [];
-                            for(var p in obj)
-                            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                            return str.join("&");
-                        },
-                        data: shipdata,
-                        headers:{'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
-                    })
-                    .then(function(response) {
-                        if (response.status === 200) {
-
-                        } 
-                        else {
-                            return alert('網路連線問題，請再試一次 \n'+ response.data);
-                        }
-                    });
-                }
-                catch(err){
-                    return alert('系統出現問題，請重新整理網頁後再試一次 \n'+err);
-                }
-            });
-        }
+            try{
+                var TYPE1_SUBMIT_FORM_API = "https://script.google.com/macros/s/AKfycbzomZj2EcfrQPU1bZsGLjlwINtcPSJ9fxk4ZA2NYy8mb1rH3iw/exec";
+                $http({
+                    url:TYPE1_SUBMIT_FORM_API,                         
+                    method: 'POST',
+                    transformRequest: function(obj) {
+                        var str = [];
+                        for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                        return str.join("&");
+                    },
+                    data: shipdata,
+                    headers:{'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+                })
+                .then(function(response) {
+                    if (response.status === 200) {
+                    } 
+                    else {
+                        return alert('網路連線問題，請再試一次 \n'+ response.data);
+                    }
+                });
+            }
+            catch(err){
+                return alert('系統出現問題，請重新整理網頁後再試一次 \n'+err);
+            }
+        });
+    }
     alert('新增成功');
 
         //window.location.reload();
