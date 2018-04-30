@@ -1,5 +1,5 @@
 (function() {
-
+   /*
   window.startFill=function (name) { 
    // ga('send', 'event', 'action', name);
   };
@@ -22,10 +22,12 @@
     return false;
   }
   email = $('#InputEmail').val();
+*/
   /*if (email.indexOf('@') == -1 ) {
       alert('請確認您的Email');
       return false;
   }   */
+/*
   whosFriend = $('#whosFriend').val();
   if (whosFriend.length ==0)
   {
@@ -79,10 +81,11 @@
     document.getElementById("submit").src="image/btn.jpg";
     return false;
   } 
+*/
 
 //  ga('send', 'conversion', 'conversion', 'submit');
-  return submitRegistration( name, phone_number,email,whosFriend,relation,toCome,address,participants,foodPreference,message);  
-  };
+  //return submitRegistration( name, phone_number,email,whosFriend,relation,toCome,address,participants,foodPreference,message);  
+  //};
   
   /*
   window.submitForm=function(shipdata) {

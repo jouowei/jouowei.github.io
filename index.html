@@ -78,14 +78,16 @@
 			<div class="row">
 				<label for="datepicker">1.配送日期</label>
 				<div class="form-group col-sm">
-					<input id="datepicker" width="276" ng-model="order.delivery_date" required />
+					<input id="datepicker" width="276" ng-model="order.delivery_date" autofocus required/>
 					<script type="text/javascript">
 						$(function () {
-							$('#datepicker').datepicker({ 
+							$('#datepicker').datepicker({
 								uiLibrary: 'bootstrap4',
 								modal: true,
-								format: 'yyyy/mm/dd',
+								format: 'yyyy-mm-dd',
 							});
+							$('#datepicker').val(new Date().toISOString().split('T')[0]);
+  							$("#datepicker").focus();
 						});
 					</script>		
 				</div>
@@ -94,7 +96,7 @@
 			<div class = "row">
 				<label for="delivery_order">2.出貨單編號</label>
 				<div class="form-group col-sm">
-					<input type="text" class="form-control" id="delivery_order" aria-describedby="deliveryHelp" placeholder="請輸入此批次的單號" ng-model="order.order_ID"  required />
+					<input type="text" class="form-control" id="delivery_order" aria-describedby="deliveryHelp" placeholder="請輸入此批次的單號" ng-model="order.order_ID" maxlength="7" required />
 					<!---<small id="deliveryHelp" class="form-text text-muted">請正確輸入單號</small>	-->			
 					
 				</div>
@@ -116,10 +118,10 @@
 								<td>預收現金(元)</td>
 							</tr>
 						</thead>
-						<tbody ng-repeat="ship in order.ships | filter: customFilter">		
+						<tbody id="tblShipContent" ng-repeat="ship in order.ships | filter: customFilter">		
 							<tr>
                                 <td>
-									<input type="text" class="form-control" ng-model="ship.ship_ID" placeholder="送貨單號" required/>
+									<input type="text" class="form-control" ng-model="ship.ship_ID" placeholder="送貨單號" maxlength="14" custom-autofocus="$index == focusIndex" required/>
 								</td>
                                 <td>
 									<select 
@@ -137,6 +139,7 @@
 									ng-options="dd.car_type as dd.car_type for dd in rawdata | unique:'car_type'" 
 									class="form-control"
 									style="width:auto;" 
+									ng-init="ship.car_type='3.5t'"
 									required/>
 									</select>
 								</td>
@@ -169,13 +172,13 @@
 									</select>
 								</td>
                                 <td>
-									<input type="number" class="form-control" ng-model="ship.floors_byhand" ng-init="ship.floors_byhand=0" required/>
+									<input type="number" class="form-control" ng-model="ship.floors_byhand" ng-init="ship.floors_byhand=0" min="0" max="10" required/>
 								</td>
                                 <td>
-									<input type="number" class="form-control" ng-model="ship.amount_collect" ng-init="ship.amount_collect=0" required/>
+									<input type="number" class="form-control" ng-model="ship.amount_collect" ng-init="ship.amount_collect=0" min="0" required/>
 								</td>
 								<td>
-									<input type="button" class="ibtnDel btn btn-md btn-danger form-control"  ng-click="deleteShip(ship)" value="刪除">
+									<input type="button" class="ibtnDel btn btn-md btn-danger form-control"  ng-click="deleteShip(ship)" value="刪除" >
 								</td>
 							</tr>
 						</tbody>
@@ -185,7 +188,7 @@
 									<input type="button" class="btn btn-lg btn-block " id="addrow" value="新增點數" ng-click="addNewShip()"/>
 								</td>
 								<td style="text-align: right;">
-									<input type="button" class="btn btn-lg btn-info " id="cal_fee" value="運費試算" ng-model="order" ng-click="validateNcal(order)" />
+									<input type="button" class="btn btn-lg btn-info " id="cal_fee" value="運費試算" ng-model="order" ng-click="validateNcal(order,false)" />
 								</td>
 								<td colspan="2" >
 									<input type="button" class="btn btn-lg btn-light form-control" id="fee_result" ng-model="order.delivery_fee" readonly/>
@@ -200,7 +203,7 @@
 					<label for="order_comment">4.備註</label>
 					<textarea class="form-control" id="commentText" rows="5"></textarea>
 			</div>
-			<button type="submit" class="btn btn-primary" ng-model="order" ng-disabled="order_form.$invalid">Submit</button>
+			<button type="submit" class="btn btn-primary" ng-model="order" ng-click="validateNcal(order,true)">Submit</button>
 			
 		</form>
 	</div>
