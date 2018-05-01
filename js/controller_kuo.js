@@ -133,7 +133,6 @@ myApp.controller('formCtrl', function($scope,$http) {
                 if (x.ship_orderStore == null || x.ship_orderStore.length == 0){
                     if(errormsg.length > 0){errormsg += "\n";}
                     errormsg += '請確認發單門市';
-                    $scope.focusIndex = $scope.order.ships.length-1;
                 }                
                 if (x.ship_ID == null || x.ship_ID.length == 0){
                     if(errormsg.length > 0){errormsg += "\n";}
@@ -151,7 +150,7 @@ myApp.controller('formCtrl', function($scope,$http) {
                     x.ship_datetime = '不指定';
                 }
                 else if (x.ship_datetime !== "不指定"){ 
-                    if(x.comment.length > 0){comment += '\n'}
+                    if(x.comment.length > 0){x.comment += '\n'}
                     x.comment += '客戶指定於'+ x.ship_datetime+'送達。';
                 }
                 if (x.contact_info == null || x.contact_info.length == 0){
@@ -171,7 +170,7 @@ myApp.controller('formCtrl', function($scope,$http) {
                 } 
                 else if(x.floors_byhand > 0){ 
                     floor = floor + parseInt(x.floors_byhand); 
-                    if(x.comment.length > 0){comment += '\n'}
+                    if(x.comment.length > 0){x.comment += '\n'}
                     x.comment += '需手搬'+x.floors_byhand+'層樓。';
                 }
                 if (x.amount_collect == null || x.amount_collect.length == 0){
@@ -179,7 +178,7 @@ myApp.controller('formCtrl', function($scope,$http) {
                     errormsg += '請確認預收現金';
                 }
                 else if(x.amount_collect > 0){
-                    if(x.comment.length > 0){comment += '\n'}
+                    if(x.comment.length > 0){x.comment += '\n'}
                     x.comment += '有預收款'+x.amount_collect+'元。';
                 }
                 $scope.rawdata.forEach(function(y){
@@ -197,8 +196,8 @@ myApp.controller('formCtrl', function($scope,$http) {
             return true;
         }
         else{
-            $('#fee_result').val("錯誤，請見備註");
-            $('#commentText').val(comment+"\n錯誤訊息：\n"+errormsg);
+            $('#fee_result').val("請重新檢查表格");
+            $('#commentText').val(comment);
             return false;
         }
     };
