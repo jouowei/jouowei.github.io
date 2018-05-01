@@ -1,5 +1,6 @@
 var myApp = angular.module('deliveyform',[]);
 
+//依照欄位key篩選data
 myApp.filter('unique', function() {
     return function(input, key) {
         var unique = {};
@@ -13,6 +14,8 @@ myApp.filter('unique', function() {
         return uniqueList;
     };
 });
+
+//自動focus到最後一行
 myApp.directive('customAutofocus', function() {
   return{
          restrict: 'A',
@@ -27,178 +30,41 @@ myApp.directive('customAutofocus', function() {
            });
          }
      };
-})
-;
+});
 
+//資料控制部分
 myApp.controller('formCtrl', function($scope,$http) {
-    //出貨單schema
-    $scope.order = [
-        {
-            business_type:'',       //出貨單類型
-            delivery_date:'',       //出貨日期
-            client_name:'',         //客戶名稱
-            order_ID:'',            //出貨單號
-            ships:'',               //送貨單 (見下方ships)
-            delivery_fee:'',        //運費
-            comment:''              //出貨單備註
+    $scope.order = order;
+    $scope.order.ships = ships;
+    $scope.order_store = order_store;
+    $scope.drivers = drivers;
+    $scope.rawdata = rawdata;
+    $scope.arriveAfter = arriveAfter;
+    $scope.arriveBefore = arriveBefore;
+
+    
+    $scope.setQuery = function(query) {
+        $scope.query = query;
+        $scope.focus = false;
+    };
+    //自動更新時間
+    $scope.updateTime = function (ship) {
+        if(ship.arriveAfter.length == 0 || ship.arriveBefore.length == 0){
+            ship.ship_datetime = "";
         }
-    ];
-    //送貨單schema
-    $scope.order.ships = [{
-        order_ID:'',
-        ship_ID:'',         //送貨單號
-        ship_deleted:'',    //此單狀態 (''=正常,'1'=刪除)
-        ship_datetime:'',   //送達時間
-        contact_info:'',    //客戶連絡電話 or 地址
-        ship_area:'',       //縣市
-        ship_district:'',   //區域
-        driver:'',          //駕駛
-        car_type:'',        //車型
-        car_ID:'',          //車號
-        is_elevator:'',     //是否有搭電梯 (+100)
-        floors_byhand:'',   //手搬樓層數 (1樓+100)
-        amount_collect:'',  //代收貨款 (現金0.2%手續費，支票無)
-        comment:''          //備註
-    }];
-    //運費lookup table
-    $scope.rawdata = [
-        {id: 1, city: '高雄市', district: '前金區', car_type: '3.5t', fare: '480'},
-        {id: 2, city: '高雄市', district: '前金區', car_type: '6.8t', fare: '900'},
-        {id: 3, city: '高雄市', district: '前鎮區', car_type: '3.5t', fare: '500'},
-        {id: 4, city: '高雄市', district: '前鎮區', car_type: '6.8t', fare: '1050'},
-        {id: 5, city: '高雄市', district: '新興區', car_type: '3.5t', fare: '480'},
-        {id: 6, city: '高雄市', district: '新興區', car_type: '6.8t', fare: '900'},
-        {id: 7, city: '高雄市', district: '苓雅區', car_type: '3.5t', fare: '480'},
-        {id: 8, city: '高雄市', district: '苓雅區', car_type: '6.8t', fare: '900'},
-        {id: 9, city: '高雄市', district: '鹽埕區', car_type: '3.5t', fare: '480'},
-        {id: 10, city: '高雄市', district: '鹽埕區', car_type: '6.8t', fare: '900'},
-        {id: 11, city: '高雄市', district: '三民區', car_type: '3.5t', fare: '600'},
-        {id: 12, city: '高雄市', district: '三民區', car_type: '6.8t', fare: '1050'},
-        {id: 13, city: '高雄市', district: '鼓山區', car_type: '3.5t', fare: '600'},
-        {id: 14, city: '高雄市', district: '鼓山區', car_type: '6.8t', fare: '1050'},
-        {id: 15, city: '高雄市', district: '旗津區', car_type: '3.5t', fare: '900'},
-        {id: 16, city: '高雄市', district: '旗津區', car_type: '6.8t', fare: '1350'},
-        {id: 17, city: '高雄市', district: '小港區', car_type: '3.5t', fare: '700'},
-        {id: 18, city: '高雄市', district: '小港區', car_type: '6.8t', fare: '1200'},
-        {id: 19, city: '高雄市', district: '左營區', car_type: '3.5t', fare: '600'},
-        {id: 20, city: '高雄市', district: '左營區', car_type: '6.8t', fare: '1050'},
-        {id: 21, city: '高雄市', district: '楠梓區', car_type: '3.5t', fare: '700'},
-        {id: 22, city: '高雄市', district: '楠梓區', car_type: '6.8t', fare: '1200'},
-        {id: 23, city: '高雄市', district: '仁武區', car_type: '3.5t', fare: '750'},
-        {id: 24, city: '高雄市', district: '仁武區', car_type: '6.8t', fare: '1250'},
-        {id: 25, city: '高雄市', district: '鳥松區', car_type: '3.5t', fare: '700'},
-        {id: 26, city: '高雄市', district: '鳥松區', car_type: '6.8t', fare: '1200'},
-        {id: 27, city: '高雄市', district: '大樹區', car_type: '3.5t', fare: '900'},
-        {id: 28, city: '高雄市', district: '大樹區', car_type: '6.8t', fare: '1350'},
-        {id: 29, city: '高雄市', district: '大寮區', car_type: '3.5t', fare: '800'},
-        {id: 30, city: '高雄市', district: '大寮區', car_type: '6.8t', fare: '1350'},
-        {id: 31, city: '高雄市', district: '林園區', car_type: '3.5t', fare: '900'},
-        {id: 32, city: '高雄市', district: '林園區', car_type: '6.8t', fare: '1500'},
-        {id: 33, city: '高雄市', district: '橋頭區', car_type: '3.5t', fare: '900'},
-        {id: 34, city: '高雄市', district: '橋頭區', car_type: '6.8t', fare: '1500'},
-        {id: 35, city: '高雄市', district: '梓官區', car_type: '3.5t', fare: '900'},
-        {id: 36, city: '高雄市', district: '梓官區', car_type: '6.8t', fare: '1500'},
-        {id: 37, city: '高雄市', district: '彌陀區', car_type: '3.5t', fare: '900'},
-        {id: 38, city: '高雄市', district: '彌陀區', car_type: '6.8t', fare: '1500'},
-        {id: 41, city: '高雄市', district: '永安區', car_type: '3.5t', fare: '1100'},
-        {id: 42, city: '高雄市', district: '永安區', car_type: '6.8t', fare: '1700'},
-        {id: 43, city: '高雄市', district: '大社區', car_type: '3.5t', fare: '900'},
-        {id: 44, city: '高雄市', district: '大社區', car_type: '6.8t', fare: '1500'},
-        {id: 45, city: '高雄市', district: '鳳山區', car_type: '3.5t', fare: '600'},
-        {id: 46, city: '高雄市', district: '鳳山區', car_type: '6.8t', fare: '1050'},
-        {id: 47, city: '高雄市', district: '岡山區', car_type: '3.5t', fare: '900'},
-        {id: 48, city: '高雄市', district: '岡山區', car_type: '6.8t', fare: '1500'},
-        {id: 49, city: '高雄市', district: '燕巢區', car_type: '3.5t', fare: '900'},
-        {id: 50, city: '高雄市', district: '燕巢區', car_type: '6.8t', fare: '1500'},
-        {id: 51, city: '高雄市', district: '旗山區', car_type: '3.5t', fare: '1300'},
-        {id: 52, city: '高雄市', district: '旗山區', car_type: '6.8t', fare: '1800'},
-        {id: 53, city: '高雄市', district: '美濃區', car_type: '3.5t', fare: '1400'},
-        {id: 54, city: '高雄市', district: '美濃區', car_type: '6.8t', fare: '2100'},
-        {id: 55, city: '高雄市', district: '甲仙區', car_type: '3.5t', fare: '2300'},
-        {id: 56, city: '高雄市', district: '甲仙區', car_type: '6.8t', fare: '3450'},
-        {id: 57, city: '高雄市', district: '杉林區', car_type: '3.5t', fare: '1800'},
-        {id: 58, city: '高雄市', district: '杉林區', car_type: '6.8t', fare: '2700'},
-        {id: 59, city: '高雄市', district: '那瑪夏區', car_type: '3.5t', fare: '3000'},
-        {id: 60, city: '高雄市', district: '那瑪夏區', car_type: '6.8t', fare: '4500'},
-        {id: 61, city: '高雄市', district: '茂林區', car_type: '3.5t', fare: '3000'},
-        {id: 62, city: '高雄市', district: '茂林區', car_type: '6.8t', fare: '4500'},
-        {id: 63, city: '高雄市', district: '六龜區', car_type: '3.5t', fare: '2000'},
-        {id: 64, city: '高雄市', district: '六龜區', car_type: '6.8t', fare: '3000'},
-        {id: 65, city: '高雄市', district: '桃源區', car_type: '3.5t', fare: '3000'},
-        {id: 66, city: '高雄市', district: '桃源區', car_type: '6.8t', fare: '4500'},
-        {id: 67, city: '高雄市', district: '內門區', car_type: '3.5t', fare: '1600'},
-        {id: 68, city: '高雄市', district: '內門區', car_type: '6.8t', fare: '2400'},
-        {id: 69, city: '屏東縣市', district: '屏東市', car_type: '3.5t', fare: '1100'},
-        {id: 70, city: '屏東縣市', district: '屏東市', car_type: '6.8t', fare: '1650'},
-        {id: 71, city: '屏東縣市', district: '九如鄉', car_type: '3.5t', fare: '1300'},
-        {id: 72, city: '屏東縣市', district: '九如鄉', car_type: '6.8t', fare: '2400'},
-        {id: 73, city: '屏東縣市', district: '長治鄉', car_type: '3.5t', fare: '1600'},
-        {id: 74, city: '屏東縣市', district: '長治鄉', car_type: '6.8t', fare: '2400'},
-        {id: 75, city: '屏東縣市', district: '麟洛鄉', car_type: '3.5t', fare: '1300'},
-        {id: 76, city: '屏東縣市', district: '麟洛鄉', car_type: '6.8t', fare: '1800'},
-        {id: 77, city: '屏東縣市', district: '萬丹鄉', car_type: '3.5t', fare: '1400'},
-        {id: 78, city: '屏東縣市', district: '萬丹鄉', car_type: '6.8t', fare: '1950'},
-        {id: 79, city: '屏東縣市', district: '竹田鄉', car_type: '3.5t', fare: '1500'},
-        {id: 80, city: '屏東縣市', district: '竹田鄉', car_type: '6.8t', fare: '2100'},
-        {id: 81, city: '屏東縣市', district: '內埔鄉', car_type: '3.5t', fare: '1600'},
-        {id: 82, city: '屏東縣市', district: '內埔鄉', car_type: '6.8t', fare: '2200'},
-        {id: 83, city: '屏東縣市', district: '鹽埔鄉', car_type: '3.5t', fare: '1600'},
-        {id: 84, city: '屏東縣市', district: '鹽埔鄉', car_type: '6.8t', fare: '2200'},
-        {id: 85, city: '屏東縣市', district: '里港鄉', car_type: '3.5t', fare: '1700'},
-        {id: 86, city: '屏東縣市', district: '里港鄉', car_type: '6.8t', fare: '2350'},
-        {id: 87, city: '屏東縣市', district: '高樹鄉', car_type: '3.5t', fare: '1900'},
-        {id: 88, city: '屏東縣市', district: '高樹鄉', car_type: '6.8t', fare: '2650'},
-        {id: 89, city: '屏東縣市', district: '三地門鄉', car_type: '3.5t', fare: '2100'},
-        {id: 90, city: '屏東縣市', district: '三地門鄉', car_type: '6.8t', fare: '2900'},
-        {id: 91, city: '屏東縣市', district: '霧台鄉', car_type: '3.5t', fare: '2600'},
-        {id: 92, city: '屏東縣市', district: '霧台鄉', car_type: '6.8t', fare: '3600'},
-        {id: 93, city: '屏東縣市', district: '瑪家鄉', car_type: '3.5t', fare: '2500'},
-        {id: 94, city: '屏東縣市', district: '瑪家鄉', car_type: '6.8t', fare: '3500'},
-        {id: 95, city: '屏東縣市', district: '泰武鄉', car_type: '3.5t', fare: '2600'},
-        {id: 96, city: '屏東縣市', district: '泰武鄉', car_type: '6.8t', fare: '3600'},
-        {id: 97, city: '屏東縣市', district: '來義鄉', car_type: '3.5t', fare: '2600'},
-        {id: 98, city: '屏東縣市', district: '來義鄉', car_type: '6.8t', fare: '3600'},
-        {id: 99, city: '屏東縣市', district: '萬巒鄉', car_type: '3.5t', fare: '1700'},
-        {id: 100, city: '屏東縣市', district: '萬巒鄉', car_type: '6.8t', fare: '2400'},
-        {id: 101, city: '屏東縣市', district: '潮州鎮', car_type: '3.5t', fare: '1700'},
-        {id: 102, city: '屏東縣市', district: '潮州鎮', car_type: '6.8t', fare: '2400'},
-        {id: 103, city: '屏東縣市', district: '崁頂鄉', car_type: '3.5t', fare: '1400'},
-        {id: 104, city: '屏東縣市', district: '崁頂鄉', car_type: '6.8t', fare: '1950'},
-        {id: 105, city: '屏東縣市', district: '新園鄉', car_type: '3.5t', fare: '1200'},
-        {id: 106, city: '屏東縣市', district: '新園鄉', car_type: '6.8t', fare: '1800'},
-        {id: 107, city: '屏東縣市', district: '東港鎮', car_type: '3.5t', fare: '1300'},
-        {id: 108, city: '屏東縣市', district: '東港鎮', car_type: '6.8t', fare: '2000'},
-        {id: 109, city: '屏東縣市', district: '南州鄉', car_type: '3.5t', fare: '1600'},
-        {id: 110, city: '屏東縣市', district: '南州鄉', car_type: '6.8t', fare: '2300'},
-        {id: 111, city: '屏東縣市', district: '新碑鄉', car_type: '3.5t', fare: '1800'},
-        {id: 112, city: '屏東縣市', district: '新碑鄉', car_type: '6.8t', fare: '2600'},
-        {id: 113, city: '屏東縣市', district: '林邊鄉', car_type: '3.5t', fare: '1400'},
-        {id: 114, city: '屏東縣市', district: '林邊鄉', car_type: '6.8t', fare: '2200'},
-        {id: 115, city: '屏東縣市', district: '枋寮鄉', car_type: '3.5t', fare: '1900'},
-        {id: 116, city: '屏東縣市', district: '枋寮鄉', car_type: '6.8t', fare: '2500'},
-        {id: 117, city: '屏東縣市', district: '春日鄉', car_type: '3.5t', fare: '2000'},
-        {id: 118, city: '屏東縣市', district: '春日鄉', car_type: '6.8t', fare: '2800'},
-        {id: 119, city: '屏東縣市', district: '枋山鄉', car_type: '3.5t', fare: '2100'},
-        {id: 120, city: '屏東縣市', district: '枋山鄉', car_type: '6.8t', fare: '2900'},
-        {id: 121, city: '屏東縣市', district: '獅子鄉', car_type: '3.5t', fare: '2300'},
-        {id: 122, city: '屏東縣市', district: '獅子鄉', car_type: '6.8t', fare: '3200'},
-        {id: 123, city: '屏東縣市', district: '牡丹鄉', car_type: '3.5t', fare: '3300'},
-        {id: 124, city: '屏東縣市', district: '牡丹鄉', car_type: '6.8t', fare: '4600'},
-        {id: 125, city: '屏東縣市', district: '車城鄉', car_type: '3.5t', fare: '2700'},
-        {id: 126, city: '屏東縣市', district: '車城鄉', car_type: '6.8t', fare: '3750'},
-        {id: 127, city: '屏東縣市', district: '恆春鎮', car_type: '3.5t', fare: '3000'},
-        {id: 128, city: '屏東縣市', district: '恆春鎮', car_type: '6.8t', fare: '4200'},
-        {id: 129, city: '屏東縣市', district: '滿洲鄉', car_type: '3.5t', fare: '3500'},
-        {id: 130, city: '屏東縣市', district: '滿洲鄉', car_type: '6.8t', fare: '4900'},
-        {id: 131, city: '屏東縣市', district: '佳冬鄉', car_type: '3.5t', fare: '1900'},
-        {id: 132, city: '屏東縣市', district: '佳冬鄉', car_type: '6.8t', fare: '2650'}
-    ];
-    //送達時間
-    $scope.arrive_time = [
-        '不指定時間','早上6點','早上7點','早上8點','早上9點','早上10點','早上11點',
-        '中午12點','下午1點','下午2點','下午3點','下午4點','下午5點',
-        '晚上6點','晚上7點','晚上8點','晚上9點','晚上10點'
-    ];
+        else if(ship.arriveAfter=="不指定" && ship.arriveBefore == "不指定" ){
+            ship.ship_datetime = "不指定";
+        }
+        else if(ship.arriveAfter=="不指定" && ship.arriveBefore.length > 0){
+            ship.ship_datetime = ship.arriveBefore + "前";
+        }
+        else if(ship.arriveBefore =="不指定" && ship.arriveAfter.length > 0){
+            ship.ship_datetime = ship.arriveAfter + "以後";
+        }
+        else{
+            ship.ship_datetime = ship.arriveAfter+"~"+ship.arriveBefore;
+        }
+    };
     //根據縣市拉出對應的鄉鎮區域
     $scope.update = function (selectedValue) {
         var arrayDistrict=new Array();
@@ -221,25 +87,27 @@ myApp.controller('formCtrl', function($scope,$http) {
     $scope.deleteShip = function (ship) {
         ship.ship_deleted = "1";
     };
+    //新增一筆送貨單
     $scope.addNewShip = function(){
-        var new_ship = { 
+        var ship = { 
             ship_ID:'',         //送貨單號
+            ship_orderStore:'', //發單門市
+            ship_driver:'',     //司機姓名
             ship_deleted: '',   //此單狀態 (''=正常,'1'=刪除)
+            arriveAfter:'',
+            arriveBefore:'',
             ship_datetime:'',   //送達時間
             contact_info:'',    //客戶連絡電話 or 地址
-            ship_area:'',       //縣市
+            ship_area:$scope.order.ships[0].ship_area,       //縣市
             ship_district:'',   //區域
-            driver:'',          //駕駛
-            car_type:'',        //車型
             car_ID:'',          //車號
             is_elevator:'',     //是否有搭電梯 (+100)
             floors_byhand:'',   //手搬樓層數 (1樓+100)
             amount_collect:'',  //代收貨款
             comment:''          //備註
         };
-        $scope.order.ships.push(new_ship);
+        $scope.order.ships.push(ship);
         $scope.focusIndex = $scope.order.ships.length-1;
-        //$("#tblShipContent input:last").last().focus();
     };
 
     $scope.customFilter = function(obj){
@@ -248,37 +116,43 @@ myApp.controller('formCtrl', function($scope,$http) {
             return obj;
         }
     };
-
+    //驗證資料 & 計算價格
     $scope.validateNcal = function(order,doSubmit){
         var errormsg = "";
         var basic_fee = new Array();
         var floor =  0;
         var elevator = 0;
-        var comment = "";
+        var comment = $('#commentText').val();
+        $('#commentText').val("");
         order.ships.forEach(function(x){
             if(x.ship_deleted == "1"){
                 return;
             }
             else{
+                x.comment="";
+                if (x.ship_orderStore == null || x.ship_orderStore.length == 0){
+                    if(errormsg.length > 0){errormsg += "\n";}
+                    errormsg += '請確認發單門市';
+                    $scope.focusIndex = $scope.order.ships.length-1;
+                }                
                 if (x.ship_ID == null || x.ship_ID.length == 0){
                     if(errormsg.length > 0){errormsg += "\n";}
                     errormsg += '請確認送貨單號';
+                }
+                if(x.ship_driver == null ||  x.ship_driver.length == 0) {
+                    if(errormsg.length > 0){errormsg += "\n";}
+                    errormsg += "請選擇司機姓名";
                 }
                 if(x.ship_district == null ||  x.ship_district.length == 0) {
                     if(errormsg.length > 0){errormsg += "\n";}
                     errormsg += "請選擇送貨區域";
                 }
-                if (x.car_type == null || x.car_type.length == 0){
-                    if(errormsg.length > 0){errormsg += "\n";}
-                    errormsg += '請選擇車型';
-                }
                 if (x.ship_datetime == null || x.ship_datetime.length == 0){
-                    if(errormsg.length > 0){errormsg += "\n";}
-                    errormsg += '請選擇指定時間';
+                    x.ship_datetime = '不指定';
                 }
-                else if (x.ship_datetime !== "不指定時間"){ 
-                    if(comment.length > 0){comment += '\n'}
-                    comment += '送貨單:'+x.ship_ID+'指定於'+ x.ship_datetime+'送達。';
+                else if (x.ship_datetime !== "不指定"){ 
+                    if(x.comment.length > 0){comment += '\n'}
+                    x.comment += '客戶指定於'+ x.ship_datetime+'送達。';
                 }
                 if (x.contact_info == null || x.contact_info.length == 0){
                     if(errormsg.length > 0){errormsg += "\n";}
@@ -297,40 +171,47 @@ myApp.controller('formCtrl', function($scope,$http) {
                 } 
                 else if(x.floors_byhand > 0){ 
                     floor = floor + parseInt(x.floors_byhand); 
+                    if(x.comment.length > 0){comment += '\n'}
+                    x.comment += '需手搬'+x.floors_byhand+'層樓。';
                 }
                 if (x.amount_collect == null || x.amount_collect.length == 0){
                     if(errormsg.length > 0){errormsg += "\n";}
                     errormsg += '請確認預收現金';
                 }
                 else if(x.amount_collect > 0){
-                    if(comment.length > 0){comment += '\n'}
-                    comment += '送貨單:'+x.ship_ID+'有預收款'+x.amount_collect+'元。';
+                    if(x.comment.length > 0){comment += '\n'}
+                    x.comment += '有預收款'+x.amount_collect+'元。';
                 }
                 $scope.rawdata.forEach(function(y){
-                    if(y.district == x.ship_district && y.car_type == x.car_type) {
+                    if(y.district == x.ship_district && y.car_type == $scope.order.car_type) {
                         basic_fee.push(parseInt(y.fare));
                     }
                 })
            }
         })
         if(errormsg.length == 0 ){
+        //計價公式
             order.delivery_fee = Math.max.apply(null, basic_fee) + 100 * (basic_fee.length - 1 + floor + elevator)
             $('#fee_result').val(order.delivery_fee);
             $('#commentText').val(comment);
             return true;
         }
         else{
-            $('#fee_result').val("錯誤，請檢查內容");
-            $('#commentText').val(comment);
+            $('#fee_result').val("錯誤，請見備註");
+            $('#commentText').val(comment+"\n錯誤訊息：\n"+errormsg);
             return false;
         }
     };
-   
+    //送出資料
     $scope.submitForm = function() {
+        $("input[type=button]").attr("disabled", "disabled");
+        $("input[type=text]").attr("disabled", "disabled");
+        $("input[type=select]").attr("disabled", "disabled");
+        
         var business_type = "郭元益";
         var delivery_date =  $('#datepicker').val();
-        var client_name = "";
         var order_ID = $scope.order.order_ID;
+        var car_type = $scope.order.car_type;
         var delivery_fee = $scope.order.delivery_fee;
         var comment = $('#commentText').val();
         $scope.order.ships.forEach(function(x){
@@ -340,21 +221,22 @@ myApp.controller('formCtrl', function($scope,$http) {
             var shipdata = {
                 business_type: business_type,
                 delivery_date: delivery_date,
-                client_name: client_name,
+                driver_name: x.ship_driver,
+                car_type: car_type,
                 order_ID: order_ID,
                 delivery_fee: delivery_fee,                    
-                comment: comment,
+                order_comment: comment,
                 ship_ID: x.ship_ID,
+                ship_orderstore: x.ship_orderStore, //發單門市
                 ship_area: x.ship_area,
                 ship_district: x.ship_district,
-                car_type: x.car_type,
                 ship_datetime: x.ship_datetime,                    
                 contact_info: x.contact_info,
                 is_elevator: x.is_elevator,
                 floors_byhand: x.floors_byhand,
-                amount_collect: x.amount_collect
+                amount_collect: x.amount_collect,
+                ship_comment: x.comment
             }
-                
             try{
                 var TYPE1_SUBMIT_FORM_API = "https://script.google.com/macros/s/AKfycbzomZj2EcfrQPU1bZsGLjlwINtcPSJ9fxk4ZA2NYy8mb1rH3iw/exec";
                 $http({
@@ -382,8 +264,8 @@ myApp.controller('formCtrl', function($scope,$http) {
                 return alert('系統出現問題，請重新整理網頁後再試一次 \n'+err);
             }
     
-        });
-        alert('新增成功');       
-        setTimeout(function(){ location.reload(); }, 3000);
+        });    
+        alert('新增成功');   
+        setTimeout(function(){ location.reload(); }, 2000);
     };
 });
