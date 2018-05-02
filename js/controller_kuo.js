@@ -217,6 +217,14 @@ myApp.controller('formCtrl', function($scope,$http) {
             if(x.ship_deleted == "1" ){
                 return;
             }
+            if(comment.length > 0){
+                if(x.comment.length > 0 && x.comment !== null){
+                    x.comment += "\n註:"+comment;
+                }
+                else if(x.comment.length == 0){
+                    x.comment ="註:"+comment;
+                }
+            }
             var shipdata = {
                 business_type: business_type,
                 delivery_date: delivery_date,
@@ -234,7 +242,7 @@ myApp.controller('formCtrl', function($scope,$http) {
                 is_elevator: x.is_elevator,
                 floors_byhand: x.floors_byhand,
                 amount_collect: x.amount_collect,
-                ship_comment: x.comment
+                ship_comment: x.comment 
             }
             try{
                 var TYPE1_SUBMIT_FORM_API = "https://script.google.com/macros/s/AKfycbzomZj2EcfrQPU1bZsGLjlwINtcPSJ9fxk4ZA2NYy8mb1rH3iw/exec";
