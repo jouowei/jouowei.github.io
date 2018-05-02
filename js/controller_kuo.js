@@ -47,7 +47,7 @@ myApp.controller('formCtrl', function($scope,$http) {
         $scope.query = query;
         $scope.focus = false;
     };
-    //自動更新時間
+    //時間更新，自動修改controller
     $scope.updateTime = function (ship) {
         if(ship.arriveAfter.length == 0 || ship.arriveBefore.length == 0){
             ship.ship_datetime = "";
@@ -228,7 +228,7 @@ myApp.controller('formCtrl', function($scope,$http) {
             var shipdata = {
                 business_type: business_type,
                 delivery_date: delivery_date,
-                driver_name: x.ship_driver,
+                ship_driver: x.ship_driver,
                 car_type: car_type,
                 order_ID: order_ID,
                 delivery_fee: delivery_fee,                    
@@ -245,18 +245,12 @@ myApp.controller('formCtrl', function($scope,$http) {
                 ship_comment: x.comment 
             }
             try{
-                var TYPE1_SUBMIT_FORM_API = "https://script.google.com/macros/s/AKfycbzomZj2EcfrQPU1bZsGLjlwINtcPSJ9fxk4ZA2NYy8mb1rH3iw/exec";
+                var TYPE1_SUBMIT_FORM_API = "https://cwhsiung-index.appspot.com/shippment";
                 $http({
                     url:TYPE1_SUBMIT_FORM_API,                         
                     method: 'POST',
-                    transformRequest: function(obj) {
-                        var str = [];
-                        for(var p in obj)
-                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                        return str.join("&");
-                    },
                     data: shipdata,
-                    headers:{'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+                    headers:{'Content-Type': 'application/json'}
                 })
                 .then(function(response) {
                     if (response.status === 200) {
