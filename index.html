@@ -10,6 +10,7 @@
 	<link href="https://cdn.jsdelivr.net/npm/gijgo@1.9.6/css/gijgo.min.css" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"></script>
 
 	<title>市面物流配送填單系統</title>
 	<script type="text/javascript" src="js/free.js"></script>
@@ -134,7 +135,7 @@
 									送貨單號
 									<input 
 										type="text" 
-										class="form-control " 
+										class="form-control" 
 										ng-model="ship.ship_ID" 
 										placeholder="送貨單號" 
 										pattern=".{14,14}"
@@ -168,10 +169,11 @@
 										<option>無</option>
 										<option>有</option>
 									</select>
+									手搬樓層
+									<input type="number" class="form-control" ng-model="ship.floors_byhand" ng-init="ship.floors_byhand=0"  min="0" max="10"   required/>
+									
 								</td>
-                                <td>手搬樓層
-									<input type="number" class="form-control" ng-model="ship.floors_byhand" ng-init="ship.floors_byhand=0" min="0" max="10"   required/>
-									預收現金
+                                <td>預收現金
 									<input type="number" class="form-control" ng-model="ship.amount_collect" ng-init="ship.amount_collect=0" min="0" max="500000" required/>
 								</td>
 								<td>	
@@ -179,10 +181,10 @@
 									<select 
 										ng-model="ship.ship_driver" 
 										ng-options="drivers for drivers in drivers" 
-										class="form-control"
+										class="form-control custom-select"
 										style="width:auto;" 
 										required/>
-									</select>			
+									</select>		
 								</td>
                                 <td>	
 									指定時間			
@@ -191,6 +193,7 @@
 									ng-options="arriveAfter.time as arriveAfter.time for arriveAfter in arriveAfter" 
 									ng-change="updateTime(ship)" 
 									class="form-control"
+									style="width:auto;" 
 									ng-init="ship.arriveAfter='不指定'"
 									required/>
 									</select>~
@@ -199,6 +202,7 @@
 									ng-options="arriveBefore.time as arriveBefore.time for arriveBefore in arriveBefore" 
 									ng-change="updateTime(ship)" 
 									class="form-control" 
+									style="width:auto;" 
 									ng-init="ship.arriveBefore='不指定'"
 									required/> 
 									</select>
