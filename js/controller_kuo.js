@@ -245,7 +245,8 @@ myApp.controller('formCtrl', function($scope,$http) {
                 ship_comment: x.comment 
             }
             try{
-                var TYPE1_SUBMIT_FORM_API = "https://cwhsiung-index.appspot.com/shippment";
+                //var TYPE1_SUBMIT_FORM_API = "https://cwhsiung-index.appspot.com/shippment";
+                var TYPE1_SUBMIT_FORM_API = "1BkAwzqNbd5eVvJkFBzGRXFu0ESWZ9Gdmw4HmtdYMM38";
                 $http({
                     url:TYPE1_SUBMIT_FORM_API,                         
                     method: 'POST',
