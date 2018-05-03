@@ -97,7 +97,12 @@
 			<div class = "row">
 				<label for="delivery_order">2.出貨單號</label>
 				<div class="form-group col-sm">
-					<input type="text" class="form-control" id="delivery_order" aria-describedby="deliveryHelp" placeholder="請輸入出貨單號" ng-model="order.order_ID" maxlength="7" required />
+					<input type="text" class="form-control" id="delivery_order" 
+					aria-describedby="deliveryHelp" 
+					placeholder="請輸入出貨單號" 
+					ng-model="order.order_ID" 
+					maxlength="7" 
+					required />
 					<!---<small id="deliveryHelp" class="form-text text-muted">請正確輸入單號</small>	-->			
 				</div>
 			</div>
@@ -138,6 +143,7 @@
 										class="form-control" 
 										ng-model="ship.ship_ID" 
 										placeholder="送貨單號" 
+										maxlength="14"
 										pattern=".{14,14}"
 										required/>
 								</td>
