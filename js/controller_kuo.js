@@ -251,7 +251,7 @@ myApp.controller('formCtrl', function($scope,$http) {
                     url:TYPE1_SUBMIT_FORM_API,                         
                     method: 'POST',
                     data: shipdata,
-                    headers:{'Content-Type': 'application/json'}
+                    headers:{'Content-Type': 'application/json','Access-Control-Allow-Origin': '*' }
                 })
                 .then(function(response) {
                     if (response.status === 200) {

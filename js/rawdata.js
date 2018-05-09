@@ -92,7 +92,7 @@ var rawdata = [
         {id: 52, city: '高雄市', district: '旗山區', car_type: '6.8t', fare: '1800'},
         {id: 53, city: '高雄市', district: '美濃區', car_type: '3.5t', fare: '1400'},
         {id: 54, city: '高雄市', district: '美濃區', car_type: '6.8t', fare: '2100'},
-        {id: 37, city: '高雄市', district: '彌陀區', car_type: '3.5t', fare: '900'},
+        {id: 37, city: '高雄市', district: '彌陀區', car_type: '3.5t', fare: '1000'},
         {id: 38, city: '高雄市', district: '彌陀區', car_type: '6.8t', fare: '1500'},
         {id: 41, city: '高雄市', district: '永安區', car_type: '3.5t', fare: '1100'},
         {id: 42, city: '高雄市', district: '永安區', car_type: '6.8t', fare: '1700'},
@@ -240,3 +240,4 @@ var arriveBefore = [
         { hour:21,time:'21:00'},
         { hour:22,time:'22:00'}
     ];
+
