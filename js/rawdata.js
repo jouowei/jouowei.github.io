@@ -28,7 +28,23 @@ var ships = [{
     amount_collect:'',  //代收貨款 (現金0.2%手續費，支票無)
     comment:''          //備註
 }];
-    
+
+var lianhua = function(){           //聯華市面資料
+    this.pickupdate = "";         //到客戶端取貨日
+    this.shipdate = "";           //送貨日
+    this.ship_datetime = "";       //送達時間
+    this.clientname = "";         //目的地 (終端客戶的聯華ID)
+    this.delivery_fee = "";       //運費
+    this.order_ID = "";           //需求單編號 (日期8碼+"_"+車次)
+    this.ship_ID = "";            //單據號碼 (單據類型+"#"+單據)
+    this.contact_info = "";       //送貨地址或公司名稱
+    this.ship_area = "";          //縣市
+    this.ship_district = "";      //區域
+    this.driver = "";             //駕駛
+    this.good_size = "";			//材積
+    this.comment = "";             //備註
+}; 
+
     //司機名稱
 var drivers = [
     '朱晉廷','江明峰','江國銘','呂志偉','李佳憲','林日迴','林麒雄','吳孝豐','高自強',
@@ -37,11 +53,11 @@ var drivers = [
     '張立威','張家豪','張詠鈞','陳明光','陳朝舜','楊宗波','楊宗基','呂梅良','蕭麗鳳','熊勇力'];
 
     //發單門市
-var order_store = ['中正','鳳山','岡山','屏東','總公司','楊梅廠',
-        '士林','中山','南京','忠孝','公館','三重','板橋','新店','永和',
-        '基隆','宜蘭','桃園','中壢','新竹','苗栗',
-        '三民','豐原','大甲','彰化','員林','嘉義','成功','東寧','新營'
-    ];
+var order_store = ['中正','鳳山','岡山','屏東','總公司',
+    '士林','中山','忠孝','新光A4','三重','板橋','永和',
+    '基隆','宜蘭','桃園','中壢','新竹',
+    '三民','大甲','彰化','員林','嘉義','成功','東寧','新營','二階'
+        ];
     //運費lookup table
 var rawdata = [
         {id: 1, city: '高雄市', district: '前金區', car_type: '3.5t', fare: '480'},
@@ -240,4 +256,14 @@ var arriveBefore = [
         { hour:21,time:'21:00'},
         { hour:22,time:'22:00'}
     ];
+    
 
+function randomWord(max){
+    var str = "",
+        arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+    for(var i=0; i<max; i++){
+        pos = Math.round(Math.random() * (arr.length-1));
+        str += arr[pos];
+    }
+    return str;
+}
