@@ -13,67 +13,151 @@
 
 	<title>市面物流配送填單系統</title>
 	<script type="text/javascript" src="js/papaparse.min.js"></script>
-	<script type="text/javascript" src="js/controller_lianhua.js"></script>
+	<script type="text/javascript" src="js/moment.min.js"></script>
+	<script type="text/javascript" src="js/rawdata.js"></script>
+	<script type="text/javascript" src="js/lianhua/lianhua_controller.js"></script>
+	<script type="text/javascript" src="js/lianhua/lianhua_ext.js"></script>
+	<script type="text/javascript" src="js/lianhua/lianhua_rawdata.js"></script>
+	
 </head>
 <body>
 	<!-- 上方導覽列 -->
 	<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-		<a class="navbar-brand" href="#">駿騰物流填單系統</a>
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-		  <span class="navbar-toggler-icon"></span>
-		</button>  
-		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-			<ul class="navbar-nav mr-auto">
-				<li class="nav-item active">
-				<a class="nav-link" href="#">首頁 <span class="sr-only">(current)</span></a>
-				</li>
-				<li class="nav-item">
-				<a class="nav-link" href="#">Link</a>
-				</li>
-				<li class="nav-item dropdown">
-				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					市面物流出貨單
-				</a>
-				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-					<a class="dropdown-item" href="#">郭元益</a>
-					<a class="dropdown-item" href="#">聯華</a>
-					<a class="dropdown-item" href="#">旺家</a>
-					<a class="dropdown-item" href="#">立信</a>
-					<a class="dropdown-item" href="#">信可</a>
-					<a class="dropdown-item" href="#">森永</a>
-					<a class="dropdown-item" href="#">掬水軒</a>
-					<a class="dropdown-item" href="#">華元</a>
-					<a class="dropdown-item" href="#">芮程</a>
-					<a class="dropdown-item" href="#">中祥</a>
-					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="#">Something else here</a>
-				</div>
-				</li>
-				<li class="nav-item dropdown">
+			<a class="navbar-brand" href="index.html">駿騰物流填單系統</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			  <span class="navbar-toggler-icon"></span>
+			</button>  
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+					<a class="nav-link" href="index.html">首頁 <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					南北物流
+						市面物流出貨單
 					</a>
 					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-					<a class="dropdown-item" href="#">聯華</a>
-					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="#">Something else here</a>
+						<a class="dropdown-item" href="kuo.html">郭元益</a>
+						<a class="dropdown-item" href="lianhua.html">聯華</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item disabled" href="#">旺家</a>
+						<a class="dropdown-item disabled" href="#">立信</a>
+						<a class="dropdown-item disabled" href="#">信可</a>
+						<a class="dropdown-item disabled" href="#">森永</a>
+						<a class="dropdown-item disabled" href="#">掬水軒</a>
+						<a class="dropdown-item disabled" href="#">華元</a>
+						<a class="dropdown-item disabled" href="#">芮程</a>
+						<a class="dropdown-item disabled" href="#">中祥</a>
 					</div>
-				</li>
-				<li class="nav-item">
-				<a class="nav-link disabled" href="#">Disabled</a>
-				</li>
-			</ul>
-		</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						南北物流
+						</a>
+						<div class="dropdown-menu disabled" aria-labelledby="navbarDropdown">
+						<a class="dropdown-item" href="#">聯華</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="#">Something else here</a>
+						</div>
+					</li>
+				</ul>
+			</div>
 	</nav>
 	<!-- 下方填單頁 -->
 	<div class="jumbotron text-center">
-		<h1>聯華(南北物流)出貨單</h1>
+		<h1>聯華出貨單</h1>
 		<p>請依次填入需要的資訊</p> 
 	</div>
-	<div class="container">
-        <input type="file" id="files" multiple>    
-        <br><br>
-        <button id="submit-parse">Parse</button>
+	<div class="container" ng-app="lianhua_form" ng-controller="formCtrl" >
+		<form id="order_form" ng-submit="submitForm()">
+			<input type="file" class="btn btn-info "  id="files" multiple> 
+			<input type="button" class="btn btn-lg btn-info " id="cal_fee" value="上傳" ng-model="rawdata" ng-click="parseFiles()" />
+			<table id="ship_table" class="table order-list table-responsive-sm">
+				<thead class="thead-light">
+					<tr>
+						<th rowspan="2">#</th>
+						<th>送貨車次</th>
+						<th>司機姓名</th><th></th>
+						<th>日期</th>
+						<th>送貨地點</th>
+						<th>單據號碼</th>
+						<th>材積數(立方米)</th>
+						<th>運費</th>
+					</tr>
+				</thead>
+				<tbody id="tblShipContent" ng-repeat="ship in lianhuas">	
+					<tr>
+						<th valign="center" rowspan="0">{{$index+1}}</th>
+						<td>
+							{{ ship.order_ID }}
+						</td>
+						<td>	
+							<select 
+								ng-model="ship.driver" 
+								ng-options="drivers for drivers in drivers" 
+								class="form-control custom-select"
+								style="width:auto;" 
+								multiple="true"
+								required/>
+							</select>
+						</td>
+						<td>
+							<textarea type="text" class="form-control" rows="4" 
+								ng-list="&#10;" 
+								ng-model="ship.driver" 
+								style="width:97px;" 
+								readonly>
+							</textarea>
+						</td>
+						<td	style="width:11%" >
+							揀貨：{{ ship.pickupdate | date:'MM-dd'}}
+							<br>
+							送貨：{{ ship.shipdate | date:'MM-dd' }}
+						</td>
+						<td>
+							{{ship.contact_info}}
+							<br>
+							({{ship.ship_area}}{{ship.ship_district}})
+						</td>
+						<td>
+							<textarea type="text" class="form-control" rows="4"  
+							style="width:144px;" 
+							ng-list="&#10;" 
+							ng-model="ship.ship_ID" 
+							readonly></textarea>
+						</td>
+						<td>
+							{{ ship.good_size.toFixed(4) }}
+						</td>
+						<td>
+							<input type="text" id="deliveryFee" 
+							style="width:100px;" 
+							ng-model="ship.delivery_fee" 
+							required>
+						</td>
+					</tr>
+					<tr>
+						<th>備註</th>
+						<td  colspan="7">
+						<textarea class="form-control" id="commentText" rows="2" ng-model="ship.comment"></textarea>
+						</td>
+					</tr>
+				<!--
+					<tr ng-repeat="row in lianhuas">
+						<td ng-repeat="(key, value) in row">{{row[key]}}</td>
+					</tr>
+				-->
+				</tbody>
+				<tfoot>
+				</tfoot>
+			</table>
+			<button type="submit" 
+			id="submit_btn"
+			class="btn btn-primary" 
+			ng-model="lianhuas" 
+			ng-click="validateNcal(lianhuas)"
+			>單據送出</button>
+		</form>
 	</div>
 </body></html>

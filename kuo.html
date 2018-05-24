@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta content="text/html; charset=utf-8" http-equiv="content-type">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/gijgo@1.9.6/js/gijgo.min.js" type="text/javascript"></script>
+	<link href="https://cdn.jsdelivr.net/npm/gijgo@1.9.6/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"></script>
+
+	<title>市面物流配送填單系統</title>
+	<script type="text/javascript" src="js/rawdata.js"></script>
+	<script type="text/javascript" src="js/kuo/kuo_rawdata.js"></script>
+	<script type="text/javascript" src="js/kuo/kuo_controller.js"></script>
+</head>
+<body ng-app="deliveyform" ng-controller="formCtrl">
+	<!-- 上方導覽列 -->
+	<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">-->
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">駿騰物流填單系統</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>  
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                    <a class="nav-link" href="index.html">首頁 <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        市面物流出貨單
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="kuo.html">郭元益</a>
+                        <a class="dropdown-item" href="lianhua.html">聯華</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item disabled" href="#">旺家</a>
+                        <a class="dropdown-item disabled" href="#">立信</a>
+                        <a class="dropdown-item disabled" href="#">信可</a>
+                        <a class="dropdown-item disabled" href="#">森永</a>
+                        <a class="dropdown-item disabled" href="#">掬水軒</a>
+                        <a class="dropdown-item disabled" href="#">華元</a>
+                        <a class="dropdown-item disabled" href="#">芮程</a>
+                        <a class="dropdown-item disabled" href="#">中祥</a>
+                    </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        南北物流
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">聯華</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+	</nav>
+	<!-- 下方填單頁 -->
+	<div class="jumbotron text-center">
+		<h1>郭元益出貨單</h1>
+		<p>請依次填入需要的資訊</p> 
+	</div>
+	<div class="container">
+		<form id="order_form" ng-submit="submitForm()">
+			<!--1.配送日期-->
+			<div class="row">
+				<label for="datepicker">1.配送日期</label>
+				<div class="form-group col-sm">
+					<input type="text" id="datepicker" width="276" ng-model="order.delivery_date"  required/>
+					<script type="text/javascript">
+						$(function () {
+							$('#datepicker').datepicker({
+								uiLibrary: 'bootstrap4',
+								modal: true,
+								format: 'yyyy-mm-dd'
+							});
+							$('#datepicker').attr("placeholder",new Date().toISOString().split('T')[0]);
+  							$("#datepicker").focus();
+						});
+					</script>		
+				</div>
+			</div>
+			<!--2.出貨單編號-->
+			<div class = "row">
+				<label for="delivery_order">2.出貨單號</label>
+				<div class="form-group col-sm">
+					<input type="text" class="form-control" id="delivery_order" 
+					aria-describedby="deliveryHelp" 
+					placeholder="請輸入出貨單號" 
+					ng-model="order.order_ID" 
+					maxlength="7" 
+					required />
+					<!---<small id="deliveryHelp" class="form-text text-muted">請正確輸入單號</small>	-->			
+				</div>
+			</div>
+			<!--3.送貨車型-->
+			<div class = "row">
+				<label for="delivery_driver">3.出貨車型</label>
+				<div class="form-group col-sm">
+					<select 
+						ng-model="order.car_type" 
+						ng-options="dd.car_type as dd.car_type for dd in rawdata | unique:'car_type'" 
+						class="form-control"
+						ng-init="order.car_type='3.5t'"
+						required/>
+					</select>					
+				</div>
+			</div>
+			<!--4.送貨單內容-->
+			<div class ="row">
+				<label for="ship_order">4.車趟細節</label>
+				<div class="form-group">
+					<table id="ship_table" class="table order-list">
+						<thead>
+						</thead>
+						<tbody id="tblShipContent" ng-repeat="ship in order.ships | filter: customFilter">		
+							<tr>
+                                <td>	
+									發單門市
+									<select 
+										ng-model="ship.ship_orderStore" 
+										ng-options="order_store as order_store for order_store in order_store" 
+										class="form-control" 
+										custom-autofocus="$index == focusIndex" 
+										required/> 
+									</select>	
+									送貨單號
+									<input 
+										id = "input_ship_ID"
+										type="text" 
+										class="form-control" 
+										ng-model="ship.ship_ID" 
+										placeholder="送貨單號" 
+										maxlength="14"
+										required/>
+								</td>
+                                <td>聯絡人
+									<input type="text" class="form-control" ng-model="ship.contact_info" placeholder="聯絡人資訊" required/>
+								</td>
+                                <td>送貨區域
+									<select 
+									ng-model="ship.ship_area" 
+									ng-options="dd.city as dd.city for dd in rawdata | unique:'city'" 
+									ng-change="update(ship.ship_area)" 
+									class="form-control" 
+									style="width:auto;" 
+									id="ship_city" 
+									required>
+									</select>
+									<br>
+									<select 
+									ng-model="ship.ship_district" 
+									ng-options="selCity for selCity in level2"  
+									class="form-control" 
+									style="width:auto;" 
+									id="ship_district" 
+									required>
+									</select>
+								</td>
+                                <td>電梯
+									<select class="form-control" id="is_elevator" ng-model="ship.is_elevator" style="width:auto;" ng-init="ship.is_elevator='無'" required>
+										<option>無</option>
+										<option>有</option>
+									</select>
+									手搬樓層
+									<input type="number" class="form-control" ng-model="ship.floors_byhand" ng-init="ship.floors_byhand=0"  min="0" max="10"   required/>
+									
+								</td>
+                                <td>預收現金
+									<input type="number" class="form-control" ng-model="ship.amount_collect" ng-init="ship.amount_collect=0" min="0" max="500000" required/>
+								</td>
+								<td>	
+									司機姓名	
+									<select 
+										ng-model="ship.ship_driver" 
+										ng-options="drivers for drivers in drivers" 
+										class="form-control custom-select"
+										style="width:auto;" 
+										required/>
+									</select>		
+								</td>
+                                <td>	
+									指定時間			
+									<select 
+									ng-model="ship.arriveAfter" 
+									ng-options="arriveAfter.time as arriveAfter.time for arriveAfter in arriveAfter" 
+									ng-change="updateTime(ship)" 
+									class="form-control"
+									style="width:auto;" 
+									ng-init="ship.arriveAfter='不指定'"
+									required/>
+									</select>~
+									<select 
+									ng-model="ship.arriveBefore" 
+									ng-options="arriveBefore.time as arriveBefore.time for arriveBefore in arriveBefore" 
+									ng-change="updateTime(ship)" 
+									class="form-control" 
+									style="width:auto;" 
+									ng-init="ship.arriveBefore='不指定'"
+									required/> 
+									</select>
+								</td>
+								<td>
+									<input type="button" class="ibtnDel btn btn-danger form-control"  ng-click="deleteShip(ship)" value="刪除" >
+								</td>
+							</tr>
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="6" style="text-align: left;">
+									<input type="button" class="btn btn-lg btn-block " id="addrow" value="新增點數" ng-click="addNewShip(order.ship[0])"/>
+								</td>
+								<td style="text-align: right;">
+									<input type="button" class="btn btn-lg btn-info " id="cal_fee" value="運費試算" ng-model="order" ng-click="validateNcal(order,false)" />
+								</td>
+								<td colspan="2" >
+									<input type="button" class="btn btn-lg btn-light form-control" id="fee_result" ng-model="order.delivery_fee" readonly/>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+			<!-- 5.備註 -->
+			<div class="form-group">
+					<label for="order_comment">5.備註</label>
+					<textarea class="form-control" id="commentText" rows="5"></textarea>
+			</div>
+			<button type="submit" class="btn btn-primary" ng-model="order" ng-click="validateNcal(order)">單據送出</button>
+			
+		</form>
+	</div>
+</body></html>
