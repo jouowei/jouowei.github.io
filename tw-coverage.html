@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>台股研究資料庫 - TW Coverage</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --bg-dark: #1e1e2e;
+            --bg-card: #2a2a3e;
+            --text: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --border: #3a3a4e;
+            --accent: #f9a825;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .top-bar {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b2838 100%);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .top-bar h1 {
+            font-size: 1.4rem;
+            margin: 0;
+            color: #fff;
+        }
+        .top-bar h1 span { color: var(--accent); }
+        .top-bar a.home-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .top-bar a.home-link:hover { color: #fff; }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 58px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            min-width: 300px;
+            background: #16162a;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .search-box {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .search-box input:focus { border-color: var(--primary); }
+        .search-box input::placeholder { color: var(--text-muted); }
+
+        .sidebar-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+        }
+        .sector-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.15s;
+        }
+        .sector-item:hover { background: var(--bg-card); color: #fff; }
+        .sector-item.active { background: var(--primary); color: #fff; }
+        .sector-item .badge {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        .company-item {
+            padding: 0.4rem 1rem 0.4rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: background 0.15s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .company-item:hover { background: var(--bg-card); color: #fff; }
+        .company-item.active { color: var(--accent); background: var(--bg-card); }
+        .company-item .ticker { color: var(--accent); font-weight: 600; margin-right: 0.4rem; }
+
+        .back-btn {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .back-btn:hover { background: var(--bg-card); }
+
+        /* Content */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 3rem;
+        }
+        .content.welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .welcome h2 { font-size: 2rem; color: #fff; margin-bottom: 0.5rem; }
+        .welcome p { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; }
+        .stats { display: flex; gap: 2rem; margin-top: 2rem; }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--accent); }
+        .stat-card .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
+
+        /* Markdown rendering */
+        .report-content h1 { font-size: 1.6rem; color: #fff; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .report-content h2 { font-size: 1.3rem; color: var(--accent); margin-top: 1.5rem; }
+        .report-content h3 { font-size: 1.1rem; color: #ccc; }
+        .report-content p { line-height: 1.7; }
+        .report-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .report-content th, .report-content td {
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.8rem;
+            text-align: right;
+            font-size: 0.85rem;
+        }
+        .report-content th { background: var(--bg-card); color: var(--accent); text-align: center; }
+        .report-content td:first-child, .report-content th:first-child { text-align: left; }
+        .report-content ul { padding-left: 1.2rem; }
+        .report-content li { margin-bottom: 0.3rem; line-height: 1.6; }
+        .report-content strong { color: #fff; }
+        .report-content code { background: var(--bg-card); padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; }
+        .report-content a { color: var(--primary); }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-muted);
+        }
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 0.8s linear infinite;
+            margin-right: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-msg { color: #ef5350; text-align: center; padding: 2rem; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; min-width: unset; }
+            .main-container { flex-direction: column; height: auto; }
+            .content { padding: 1rem; }
+            .main-container.show-content .sidebar { display: none; }
+            .main-container.show-content .content { display: block; }
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 6px; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .content::-webkit-scrollbar { width: 8px; }
+        .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <h1>📊 台股研究資料庫 <span>TW Coverage</span></h1>
+    <a class="home-link" href="index.html">← 返回首頁</a>
+</div>
+
+<div class="main-container" id="app">
+    <div class="sidebar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜尋股票代號或公司名稱..." oninput="handleSearch(this.value)">
+        </div>
+        <div class="sidebar-list" id="sidebarList">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+    <div class="content welcome" id="contentArea">
+        <h2>台股研究資料庫</h2>
+        <p>資料來源：<a href="https://github.com/Timeverse/My-TW-Coverage" target="_blank" style="color:var(--accent)">Timeverse/My-TW-Coverage</a><br>涵蓋台灣上市公司研究報告，含供應鏈分析與財務數據</p>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="num">1,735</div>
+                <div class="label">上市公司</div>
+            </div>
+            <div class="stat-card">
+                <div class="num">99</div>
+                <div class="label">產業別</div>
+            </div>
+            <div class="stat-card">
+                <div class="num">4,900+</div>
+                <div class="label">交叉引用</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const REPO_API = 'https://api.github.com/repos/Timeverse/My-TW-Coverage/contents/Pilot_Reports';
+const RAW_BASE = 'https://raw.githubusercontent.com/Timeverse/My-TW-Coverage/master/Pilot_Reports';
+
+let sectors = [];
+let currentSector = null;
+let currentCompanies = [];
+let cache = {};
+
+// Initialize
+async function init() {
+    showSidebarLoading();
+    try {
+        const res = await fetch(REPO_API);
+        if (!res.ok) throw new Error('無法載入產業列表');
+        const data = await res.json();
+        sectors = data
+            .filter(d => d.type === 'dir')
+            .map(d => ({ name: d.name, path: d.path }))
+            .sort((a, b) => a.name.localeCompare(b.name, 'zh-TW'));
+        renderSectors(sectors);
+    } catch (e) {
+        document.getElementById('sidebarList').innerHTML =
+            '<div class="error-msg">' + e.message + '<br><small>可能是 GitHub API 速率限制，請稍後再試</small></div>';
+    }
+}
+
+function showSidebarLoading() {
+    document.getElementById('sidebarList').innerHTML =
+        '<div class="loading"><div class="spinner"></div>載入中...</div>';
+}
+
+function renderSectors(list) {
+    const el = document.getElementById('sidebarList');
+    el.innerHTML = list.map((s, i) =>
+        '<div class="sector-item" onclick="loadSector(' + i + ', this)" title="' + s.name + '">' +
+            '<span>' + s.name + '</span>' +
+        '</div>'
+    ).join('');
+}
+
+async function loadSector(index, el) {
+    const sector = sectors[index];
+    currentSector = sector;
+
+    // Highlight
+    document.querySelectorAll('.sector-item').forEach(e => e.classList.remove('active'));
+    if (el) el.classList.add('active');
+
+    const sidebar = document.getElementById('sidebarList');
+
+    if (cache[sector.path]) {
+        currentCompanies = cache[sector.path];
+        renderCompanies(sector.name);
+        return;
+    }
+
+    sidebar.innerHTML = '<div class="loading"><div class="spinner"></div>載入公司列表...</div>';
+
+    try {
+        const res = await fetch(REPO_API + '/' + encodeURIComponent(sector.name));
+        if (!res.ok) throw new Error('無法載入');
+        const data = await res.json();
+        currentCompanies = data
+            .filter(d => d.name.endsWith('.md'))
+            .map(d => {
+                const match = d.name.match(/^(\d+)_(.+)\.md$/);
+                return {
+                    filename: d.name,
+                    ticker: match ? match[1] : '',
+                    company: match ? match[2] : d.name.replace('.md', ''),
+                    path: d.path
+                };
+            })
+            .sort((a, b) => a.ticker.localeCompare(b.ticker));
+        cache[sector.path] = currentCompanies;
+        renderCompanies(sector.name);
+    } catch (e) {
+        sidebar.innerHTML = '<div class="error-msg">' + e.message + '</div>';
+    }
+}
+
+function renderCompanies(sectorName) {
+    const sidebar = document.getElementById('sidebarList');
+    const backBtn = '<div class="back-btn" onclick="renderSectors(sectors); currentSector=null;">← 返回產業列表</div>';
+    const header = '<div style="padding:0.5rem 1rem;font-size:0.8rem;color:var(--accent);font-weight:600;">' +
+        sectorName + ' (' + currentCompanies.length + ')' + '</div>';
+    const items = currentCompanies.map((c, i) =>
+        '<div class="company-item" onclick="loadReport(' + i + ', this)">' +
+            '<span class="ticker">' + c.ticker + '</span>' + c.company +
+        '</div>'
+    ).join('');
+    sidebar.innerHTML = backBtn + header + items;
+}
+
+async function loadReport(index, el) {
+    const company = currentCompanies[index];
+
+    // Highlight
+    document.querySelectorAll('.company-item').forEach(e => e.classList.remove('active'));
+    if (el) el.classList.add('active');
+
+    const content = document.getElementById('contentArea');
+    content.className = 'content';
+    content.innerHTML = '<div class="loading"><div class="spinner"></div>載入報告...</div>';
+
+    // Mobile: show content
+    document.getElementById('app').classList.add('show-content');
+
+    const rawUrl = RAW_BASE + '/' + encodeURIComponent(currentSector.name) + '/' + encodeURIComponent(company.filename);
+
+    try {
+        const res = await fetch(rawUrl);
+        if (!res.ok) throw new Error('無法載入報告');
+        let md = await res.text();
+
+        // Convert wikilinks [[text]] to styled spans
+        md = md.replace(/\[\[([^\]]+)\]\]/g, '<span style="color:var(--primary);font-weight:500;cursor:pointer" onclick="searchWikilink(\'$1\')" title="搜尋: $1">$1</span>');
+
+        const html = marked.parse(md);
+        content.innerHTML = '<div class="report-content">' + html + '</div>';
+    } catch (e) {
+        content.innerHTML = '<div class="error-msg">載入失敗：' + e.message + '</div>';
+    }
+}
+
+function searchWikilink(term) {
+    document.getElementById('searchInput').value = term;
+    handleSearch(term);
+}
+
+function handleSearch(query) {
+    query = query.trim().toLowerCase();
+    if (!query) {
+        if (currentSector && currentCompanies.length) {
+            renderCompanies(currentSector.name);
+        } else {
+            renderSectors(sectors);
+        }
+        return;
+    }
+
+    // Search across all cached companies, plus sector names
+    const results = [];
+    for (const key in cache) {
+        cache[key].forEach((c, i) => {
+            if (c.ticker.includes(query) || c.company.toLowerCase().includes(query)) {
+                results.push({ ...c, sectorPath: key, index: i });
+            }
+        });
+    }
+
+    // Also show matching sectors
+    const matchingSectors = sectors.filter(s => s.name.toLowerCase().includes(query));
+
+    const sidebar = document.getElementById('sidebarList');
+    let html = '';
+
+    if (matchingSectors.length) {
+        html += '<div style="padding:0.5rem 1rem;font-size:0.75rem;color:var(--text-muted);">產業 (' + matchingSectors.length + ')</div>';
+        html += matchingSectors.map((s, i) =>
+            '<div class="sector-item" onclick="loadSector(' + sectors.indexOf(s) + ', this)">' +
+                '<span>' + s.name + '</span>' +
+            '</div>'
+        ).join('');
+    }
+
+    if (results.length) {
+        html += '<div style="padding:0.5rem 1rem;font-size:0.75rem;color:var(--text-muted);">公司 (' + results.length + ')</div>';
+        html += results.map(c =>
+            '<div class="company-item" onclick="jumpToCompany(\'' + c.sectorPath + '\',' + c.index + ', this)">' +
+                '<span class="ticker">' + c.ticker + '</span>' + c.company +
+            '</div>'
+        ).join('');
+    }
+
+    if (!html && query) {
+        html = '<div style="padding:1rem;color:var(--text-muted);text-align:center;font-size:0.85rem;">找不到「' + query + '」<br><small>提示：先點選產業載入公司列表後才能搜尋公司</small></div>';
+    }
+
+    sidebar.innerHTML = html;
+}
+
+function jumpToCompany(sectorPath, index, el) {
+    const sector = sectors.find(s => s.path === sectorPath);
+    if (sector) {
+        currentSector = sector;
+        currentCompanies = cache[sectorPath];
+        loadReport(index, el);
+    }
+}
+
+init();
+</script>
+
+</body>
+</html>
