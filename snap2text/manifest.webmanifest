@@ -1,0 +1,24 @@
+{
+  "name": "截圖轉文字",
+  "short_name": "截圖轉文字",
+  "description": "把長截圖或多張截圖自動拼接、轉成文字檔，再分享給 Claude。",
+  "lang": "zh-Hant-TW",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f4f2",
+  "theme_color": "#1f2937",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "share_target": {
+    "action": "./share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [{ "name": "images", "accept": ["image/*", ".png", ".jpg", ".jpeg", ".webp"] }]
+    }
+  }
+}
